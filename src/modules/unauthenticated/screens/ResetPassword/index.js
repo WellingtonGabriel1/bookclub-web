@@ -1,9 +1,35 @@
 import { Flex, Image } from '@chakra-ui/react'
 import { Text, Input, Link, Button } from 'components'
-// import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
 
 export const ResetPasswordScreen = () => {
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
+
+  const { handleSubmit, values, handleChange, errors } = useFormik({
+    initialValues: {
+      token: '',
+      password: '',
+      confirmpassword: ''
+    },
+    validationSchema: Yup.object({
+      token: Yup.string()
+        .length(4, 'Token deve conter 4 caracteres.')
+        .required('Token é obrigatório.'),
+      password: Yup.string()
+        .min(6, 'Senha deve ter ao menos 6 caracteres')
+        .required('Senha é obrigatório.'),
+      confirmpassword: Yup.string()
+        .min(6, 'Confirmar a senha deve ter ao menos 6 caracteres.')
+        .required('Confirmar senha é obrigatório.')
+        .oneOf([Yup.ref('password'), null], 'Senhas não são iguais.')
+    }),
+    onSubmit: (data) => {
+      navigate('/login')
+    }
+  })
+
   return (
     <Flex flexDir="row" w="100vw" h="100vh">
       <Flex
@@ -18,12 +44,41 @@ export const ResetPasswordScreen = () => {
         <Flex flexDir="column" w={['100%', '100%', '100%', '416px']}>
           <Image src="/img/logo.svg" alt="BookClub Logo" w="160px" h="48px" />
           <Text.ScreenTitle mt="48px">Nova senha</Text.ScreenTitle>
-          <Text>Digite o código enviado e uma nova senha  nos campos abaixo:</Text>
-          <Input mt="24px" placeholder="Ex: 0000" />
-          <Input.Password mt="16px" placeholder="Nova senha" />
-          <Input.Password mt="16px" placeholder="Confirmar nova senha" />
+          <Text>
+            Digite o código enviado e uma nova senha nos campos abaixo:
+          </Text>
+          <Input
+            id="token"
+            name="token"
+            value={values.token}
+            error={errors.token}
+            onChange={handleChange}
+            mt="24px"
+            placeholder="Ex: 0000"
+            maxLenght={4}
+          />
+          <Input.Password
+            id="password"
+            name="password"
+            value={values.password}
+            error={errors.password}
+            onChange={handleChange}
+            mt="16px"
+            placeholder="Nova senha"
+          />
+          <Input.Password
+            id="confirmpassword"
+            name="confirmpassword"
+            value={values.confirmpassword}
+            error={errors.confirmpassword}
+            onChange={handleChange}
+            mt="16px"
+            placeholder="Confirmar nova senha"
+          />
 
-          <Button mb="12px" mt="24px">Salvar</Button>
+          <Button onClick={handleSubmit} mb="12px" mt="24px">
+            Salvar
+          </Button>
           <Link.Action
             mt="8px"
             Text="Não recebeu o código?"
