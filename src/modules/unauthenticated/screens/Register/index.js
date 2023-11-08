@@ -1,11 +1,35 @@
-import { Flex, Image } from '@chakra-ui/react'
+import { Flex, Image, useToast } from '@chakra-ui/react'
 import { Text, Input, Link, Button } from 'components'
 import { useNavigate } from 'react-router-dom'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { useMutation } from 'react-query'
+import { registerCall } from 'services/api/requests'
 
 export const RegisterScreen = () => {
   const navigate = useNavigate()
+  const toast = useToast()
+  const mutation = useMutation((newUser) => registerCall(newUser), {
+    onError: (error) => {
+      toast({
+        title: 'Falha ao criar a conta.',
+        description:
+          error?.response?.data?.error || 'Por favor, tente novamente.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true
+      })
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Conta criada com sucesso.',
+        status: 'success',
+        duration: 6000,
+        isClosable: true
+      })
+      navigate('/')
+    }
+  })
 
   const { handleSubmit, values, handleChange, errors } = useFormik({
     initialValues: {
@@ -15,7 +39,9 @@ export const RegisterScreen = () => {
       confirmpassword: ''
     },
     validationSchema: Yup.object({
-      name: Yup.string().min(3, 'Nome deve ter 3 caracteres.').required('Nome é obrigatório.'),
+      name: Yup.string()
+        .min(3, 'Nome deve ter 3 caracteres.')
+        .required('Nome é obrigatório.'),
       email: Yup.string()
         .email('E-mail inválido')
         .required('E-mail é obrigatório.'),
@@ -28,7 +54,7 @@ export const RegisterScreen = () => {
         .oneOf([Yup.ref('password'), null], 'Senhas não são iguais.')
     }),
     onSubmit: (data) => {
-      console.log({ data })
+      mutation.mutate(data)
     }
   })
 
@@ -84,7 +110,12 @@ export const RegisterScreen = () => {
             placeholder="Confirmar senha"
           />
 
-          <Button onClick={handleSubmit} mb="12px" mt="24px">
+          <Button
+            isLoading={mutation.isLoading}
+            onClick={handleSubmit}
+            mb="12px"
+            mt="24px"
+          >
             Cadastrar
           </Button>
           <Link.Action
