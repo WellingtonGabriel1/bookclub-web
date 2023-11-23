@@ -10,7 +10,7 @@ export const BookCard = ({ cover_url, name, author }) => {
       justifyContent="center"
     >
       <Flex
-        backgroundImage={`url(${cover_url})`}
+        backgroundImage={cover_url}
         backgroundSize="cover"
         backgroundPosition="center"
         h="230px"
