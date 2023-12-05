@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from 'react-query'
 import { Flex } from '@chakra-ui/react'
-import { Text } from 'components/atoms'
+import { Text, EmptyMessage, Loader } from 'components/atoms'
 import { CategoryCard, BookCard } from 'components/molecules'
 import { getCategories, getBooksByCategory } from 'services/api/requests'
 
 export const CategoryList = ({ title, categoryId }) => {
   const [selected, setSelected] = useState(categoryId)
   const { data } = useQuery('categories', getCategories)
-  const bookQuery = useQuery(
-    ['booksById', selected],
-    () => getBooksByCategory(selected),
-    {
-      enabled: !!selected
-    }
-  )
+  const {
+    data: bookQuery,
+    refetch,
+    isLoading
+  } = useQuery(['booksById', selected], () => getBooksByCategory(selected), {
+    enabled: !!selected
+  })
+
+  useEffect(() => {
+    refetch()
+  }, [categoryId])
 
   useEffect(() => {
     if (!selected && data?.data) {
@@ -29,30 +33,28 @@ export const CategoryList = ({ title, categoryId }) => {
       h="500px"
     >
       <Text.ScreenTitle>{title || 'Categorias'}</Text.ScreenTitle>
-      {
-        !categoryId && (
-          <Flex
-        css={{
-          '::-webkit-scrollbar': {
-            display: 'none'
-          }
-        }}
-        overflowX={['scroll', 'auto']}
-        mt="12px"
-        flexDir="row"
-      >
-        {data?.data &&
-          data?.data.map((item) => (
-            <CategoryCard
-              key={`book_${item.id}`}
-              selected={selected === item.id}
-              onClick={() => setSelected(item.id)}
-              {...item}
-            />
-          ))}
-      </Flex>
-        )
-      }
+      {!categoryId && (
+        <Flex
+          css={{
+            '::-webkit-scrollbar': {
+              display: 'none'
+            }
+          }}
+          overflowX={['scroll', 'auto']}
+          mt="12px"
+          flexDir="row"
+        >
+          {data?.data &&
+            data?.data.map((item) => (
+              <CategoryCard
+                key={`book_${item.id}`}
+                selected={selected === item.id}
+                onClick={() => setSelected(item.id)}
+                {...item}
+              />
+            ))}
+        </Flex>
+      )}
       <Flex
         css={{
           '::-webkit-scrollbar': {
@@ -64,8 +66,12 @@ export const CategoryList = ({ title, categoryId }) => {
         pb="48px"
         flexDir="row"
       >
-        {bookQuery?.data &&
-          bookQuery?.data?.data.map((item) => (
+        {isLoading && <Loader />}
+        {!isLoading && bookQuery && bookQuery?.data?.length === 0 && (
+          <EmptyMessage>Nenhum livro encontrado</EmptyMessage>
+        )}
+        {bookQuery &&
+          bookQuery?.data.map((item) => (
             <BookCard key={`book_${item.id}`} {...item} />
           ))}
       </Flex>
