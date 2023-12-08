@@ -14,7 +14,7 @@ export const getBooksByCategory = (id) =>
     }
   })
 
-export const getBookDetail = (id) =>
+  export const getBookDetail = (id) =>
   api.get(`/book/${id}`, {
     headers: {
       Authorization: `bearer ${localStorage.getItem('@bookclub_token')}`

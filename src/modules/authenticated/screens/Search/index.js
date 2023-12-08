@@ -20,8 +20,8 @@ export const SearchScreen = () => {
       <NavBar query={query} setQuery={setQuery} />
       <Flex
         flexDir="column"
-        alignItems="flex-start"
-        justifyContent="flex-start"
+        alignItems={['center', 'flex-start']}
+        justifyContent={['center', 'flex-start']}
         mt={['24px', '48px']}
         w="100%"
       >
@@ -40,6 +40,7 @@ export const SearchScreen = () => {
         <Flex w="100%" alignItems="flex-start" justifyContent="flex-start">
           <AuthorList data={data?.data?.authors} isLoading={isLoading} />
         </Flex>
+        
       </Flex>
     </Flex>
   )
