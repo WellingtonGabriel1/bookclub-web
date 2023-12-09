@@ -12,12 +12,21 @@ export const CategoryList = ({ title, categoryId }) => {
     data: bookQuery,
     refetch,
     isLoading
-  } = useQuery(['booksById', selected], () => getBooksByCategory(selected), {
-    enabled: !!selected
-  })
+  } = useQuery(
+    [`booksById-${selected}`, selected],
+    () => getBooksByCategory(selected),
+    {
+      enabled: !!selected,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true
+    }
+  )
 
   useEffect(() => {
-    refetch()
+    if (categoryId) {
+      setSelected(categoryId)
+      refetch()
+    }
   }, [categoryId])
 
   useEffect(() => {
@@ -25,6 +34,7 @@ export const CategoryList = ({ title, categoryId }) => {
       setSelected(data?.data[0].id)
     }
   }, [data])
+
   return (
     <Flex
       flexDir="column"
